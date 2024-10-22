@@ -29,7 +29,7 @@ namespace MarketDataDomain.API.Controller
         {
             Console.WriteLine("Market data requested");
 
-            var marketData = await _finnhubService.GetMarketDataAsync();
+            var marketData = await _finnhubService.RetrieveMarketDataCache();
 
             if (marketData == null)
                 return NoContent();

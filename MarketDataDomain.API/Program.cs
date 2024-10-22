@@ -42,8 +42,13 @@ RecurringJob.AddOrUpdate<IFinnhubService>(
 
 RecurringJob.AddOrUpdate<IFinnhubService>(
     "refresh-market-data",
-    service => service.GetMarketDataAsync(false),
-    "*/3 * * * *");
+    service => service.GetMarketDataAsync(),
+    "*/1 * * * *");
+
+RecurringJob.AddOrUpdate<IFinnhubService>(
+    "refresh-market-status",
+    service => service.GetMarketStatusAsync(),
+    "*/5 * * * *");
 
 app.UseRouting();
 app.UseHttpsRedirection();

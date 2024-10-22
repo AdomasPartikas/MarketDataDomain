@@ -96,4 +96,40 @@ namespace MarketDataDomain.API.Models
         [JsonProperty("t")]
         public long? Timestamp { get; set; }
     }
+
+    /// <summary>
+    /// Represents the market status for an exchange.
+    /// </summary>
+    public class MarketStatusDto
+    {
+        /// <summary>
+        /// Gets or sets the exchange code.
+        /// </summary>
+        public required string Exchange { get; set; }
+
+        /// <summary>
+        /// Gets or sets the holiday event.
+        /// </summary>
+        public string? Holiday { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the market is open at the moment.
+        /// </summary>
+        public bool IsOpen { get; set; }
+
+        /// <summary>
+        /// Gets or sets the market session.
+        /// </summary>
+        public string? Session { get; set; }
+
+        /// <summary>
+        /// Gets or sets the current timestamp.
+        /// </summary>
+        public long Timestamp { get; set; }
+
+        /// <summary>
+        /// Gets or sets the timezone.
+        /// </summary>
+        public required string Timezone { get; set; }
+    }
 }

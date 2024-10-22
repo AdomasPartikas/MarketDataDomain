@@ -4,5 +4,6 @@ namespace MarketDataDomain.API.Constants
     {
         public const string MarketDataCacheKey = "MarketDataCache";
         public const string StockSymbolsCacheKey = "StockSymbolsCache";
+        public const string MarketStatusCacheKey = "MarketStatusCache";
     }
 }
