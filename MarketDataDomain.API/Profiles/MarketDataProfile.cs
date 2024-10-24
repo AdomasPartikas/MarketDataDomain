@@ -1,5 +1,6 @@
 using MarketDataDomain.API.Models;
 using MarketDataDomain.API.Records;
+using MarketDataDomain.API.Utils;
 
 namespace MarketDataDomain.API.Profile
 {
@@ -21,7 +22,7 @@ namespace MarketDataDomain.API.Profile
                 .ForMember(dest => dest.PreviousClosePrice, opt => opt.MapFrom(src => src.Quotes.PreviousClosePrice))
                 .ForMember(dest => dest.Change, opt => opt.MapFrom(src => src.Quotes.Change))
                 .ForMember(dest => dest.PercentChange, opt => opt.MapFrom(src => src.Quotes.PercentChange))
-                .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Quotes.Timestamp));
+                .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateTimeConverter.UnixTimestampToDateTime(src.Quotes.Timestamp!.Value)));
 
                 
         }

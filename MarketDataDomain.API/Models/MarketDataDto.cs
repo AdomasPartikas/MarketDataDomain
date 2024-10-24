@@ -56,6 +56,6 @@ namespace MarketDataDomain.API.Models
         /// <summary>
         /// Gets or sets the timestamp of the quote.
         /// </summary>
-        public long? Timestamp { get; set; }  // The timestamp of the quote
+        public DateTime Date { get; set; }  // The timestamp of the quote
     }
 }

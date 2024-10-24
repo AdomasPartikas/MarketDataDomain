@@ -9,31 +9,30 @@ using Newtonsoft.Json;
 
 namespace MarketDataDomain.API.Services
 {
-    public class FinnhubService(HttpClient httpClient, IConfiguration configuration, IMapper mapper, IMemoryCache cache) : IFinnhubService
+    public class FinnhubService(HttpClient httpClient, IConfiguration configuration, IMapper mapper, ICachingService cachingService) : IFinnhubService
     {
         private readonly HttpClient _httpClient = httpClient;
         private readonly string _apiToken = configuration["APITokens:Finnhub"] ?? throw new ArgumentNullException("APITokens:Finnhub");
         private readonly string _finnhubBaseUrl = APIConstants.FinnhubBaseUrl;
         private readonly IMapper _mapper = mapper;
-        private readonly IMemoryCache _cache = cache;
+        private readonly ICachingService _cachingService = cachingService;
 
         public async Task<List<StockSymbolDto>?> GetStockSymbolsAsync()
         {
-            if (_cache.TryGetValue(CacheConstanct.StockSymbolsCacheKey, out List<StockSymbolDto>? cachedStockSymbols))
-            {
-                Console.WriteLine("Retrieving stock symbols from cache");
-                return cachedStockSymbols;
-            }
+            var symbolCache = await _cachingService.RetrieveStockSymbolsCache();
+
+            if (symbolCache != null && symbolCache.Count > 0)
+                return symbolCache;
 
             var apiUrl = $"{_finnhubBaseUrl}{APIConstants.FinnhubStockSymbolsEndpoint}";
-            
+
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("X-Finnhub-Token", _apiToken);
-            
+
             var response = await _httpClient.GetAsync(apiUrl);
 
             if (!response.IsSuccessStatusCode)
-                return null; 
+                return null;
 
             var jsonData = await response.Content.ReadAsStringAsync();
 
@@ -45,8 +44,7 @@ namespace MarketDataDomain.API.Services
 
             stockSymbols = stockSymbols!.Where(symbol => wellKnownSymbols.Contains(symbol.Symbol)).ToList();
 
-            _cache.Set(CacheConstanct.StockSymbolsCacheKey, stockSymbols, TimeSpan.FromHours(24));
-            Console.WriteLine("Caching stock symbols for 24 hours");
+            _cachingService.SetStockSymbolsCache(stockSymbols);
 
             return stockSymbols;
         }
@@ -54,7 +52,7 @@ namespace MarketDataDomain.API.Services
         public async Task<QuoteDto?> GetStockQuoteAsync(string stockSymbol)
         {
             var apiUrl = $"{_finnhubBaseUrl}{APIConstants.FinnhubQuoteEndpoint}";
-            
+
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("X-Finnhub-Token", _apiToken);
 
@@ -70,22 +68,20 @@ namespace MarketDataDomain.API.Services
             return quote;
         }
 
-        public async Task<List<MarketDataDto>> GetMarketDataAsync()
+        public async Task<List<MarketDataDto>?> GetMarketDataAsync()
         {
             Console.WriteLine($"Starting GetMarketDataAsync()");
 
-            if (_cache.TryGetValue(CacheConstanct.MarketStatusCacheKey, out MarketStatusDto? cachedMarketStatus))
+            var marketStatus = await _cachingService.RetrieveMarketStatusCache();
+            var marketDataCache = await _cachingService.RetrieveMarketDataCache();
+
+            if (marketDataCache != null)
             {
-                if (!cachedMarketStatus!.IsOpen)
+                if (marketStatus != null && !marketStatus.IsOpen)
                 {
                     Console.WriteLine($"Stopping GetMarketDataAsync() due to market closed");
-                    return [];
+                    return null;
                 }
-            }
-            else
-            {
-                Console.WriteLine("Starting GetMarketStatusAsync");
-                await GetMarketStatusAsync();
             }
 
             var stockSymbols = await GetStockSymbolsAsync();
@@ -101,21 +97,12 @@ namespace MarketDataDomain.API.Services
                     marketData.Add(_mapper.Map<MarketDataDto>(new FinnhubGroup() { StockSymbols = symbol, Quotes = quote }));
                 else
                     Console.WriteLine($"Failed to retrieve quote for symbol: {symbol.Symbol}");
-    
+
             }
 
-            _cache.Set(CacheConstanct.MarketDataCacheKey, marketData, TimeSpan.FromHours(24));
-            Console.WriteLine("Caching market data for 24 hours");
+            _cachingService.SetMarketDataCache(marketData);
 
             return marketData;
-        }
-
-        public async Task<List<MarketDataDto>?> RetrieveMarketDataCache()
-        {
-            if (_cache.TryGetValue(CacheConstanct.MarketDataCacheKey, out List<MarketDataDto>? cachedMarketData))
-                return cachedMarketData;
-            else
-                return [];
         }
 
         private async Task<HttpResponseMessage> GetResponseWithRetriesAsync(string requestUrl, int delay, int retries)
@@ -147,7 +134,7 @@ namespace MarketDataDomain.API.Services
             return response;
         }
 
-        public async Task<MarketStatusDto> GetMarketStatusAsync()
+        public async Task<MarketStatusDto?> GetMarketStatusAsync()
         {
             var apiUrl = $"{_finnhubBaseUrl}{APIConstants.FinnhubMarketStatusEndpoint}";
 
@@ -157,15 +144,15 @@ namespace MarketDataDomain.API.Services
             var response = await GetResponseWithRetriesAsync(apiUrl, 10, 10);
 
             if (!response.IsSuccessStatusCode)
-                return new MarketStatusDto(){ IsOpen = false, Exchange = "US", Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(), Timezone = "America/New_York" };
+                return null;
 
             var jsonData = await response.Content.ReadAsStringAsync();
 
             var marketStatus = JsonConvert.DeserializeObject<MarketStatusDto>(jsonData);
 
-            _cache.Set(CacheConstanct.MarketStatusCacheKey, marketStatus, TimeSpan.FromHours(24));
+            _cachingService.SetMarketStatusCache(marketStatus);
 
-            if(marketStatus!.IsOpen)
+            if (marketStatus!.IsOpen)
                 Console.WriteLine($"{DateTime.Now} - Market is open");
             else
                 Console.WriteLine($"{DateTime.Now} - Market is closed");

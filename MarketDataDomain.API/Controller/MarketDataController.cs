@@ -14,9 +14,9 @@ namespace MarketDataDomain.API.Controller
     /// Initializes a new instance of the <see cref="MarketDataController"/> class.
     /// </summary>
     /// <param name="finnhubService">The service for interacting with Finnhub API.</param>
-    public class MarketDataController(IFinnhubService finnhubService) : ControllerBase
+    public class MarketDataController(ICachingService cachingService) : ControllerBase
     {
-        private readonly IFinnhubService _finnhubService = finnhubService;
+        private readonly ICachingService _cachingService = cachingService;
 
         /// <summary>
         /// Gets the market data.
@@ -29,7 +29,7 @@ namespace MarketDataDomain.API.Controller
         {
             Console.WriteLine("Market data requested");
 
-            var marketData = await _finnhubService.RetrieveMarketDataCache();
+            var marketData = await _cachingService.RetrieveMarketDataCache();
 
             if (marketData == null)
                 return NoContent();
@@ -46,7 +46,7 @@ namespace MarketDataDomain.API.Controller
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetStockSymbols()
         {
-            var stockSymbols = await _finnhubService.GetStockSymbolsAsync();
+            var stockSymbols = await _cachingService.RetrieveStockSymbolsCache();
 
             if (stockSymbols == null || stockSymbols.Count == 0)
                 return NotFound("No stock symbols found.");
@@ -55,25 +55,20 @@ namespace MarketDataDomain.API.Controller
         }
 
         /// <summary>
-        /// Gets the stock quote for a specific symbol.
+        /// Gets the market status.
         /// </summary>
-        /// <param name="symbol">The stock symbol.</param>
-        /// <returns>The stock quote.</returns>
-        [HttpGet("quote/{symbol}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(QuoteDto))]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetStockQuote(string symbol)
+        /// <returns>The market status.</returns>
+        [HttpGet("marketstatus")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MarketStatusDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetMarketStatus()
         {
-            if (symbol == null)
-                return BadRequest("Invalid stock symbol.");
+            var marketStatus = await _cachingService.RetrieveMarketStatusCache();
 
-            var quotes = await _finnhubService.GetStockQuoteAsync(symbol);
+            if (marketStatus == null)
+                return NotFound("Market status not found.");
 
-            if (quotes == null)
-                return NoContent();
-
-            return Ok(quotes);
+            return Ok(marketStatus);
         }
     }
 }

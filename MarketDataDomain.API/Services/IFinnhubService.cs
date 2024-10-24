@@ -3,14 +3,13 @@ using MarketDataDomain.API.Models;
 
 namespace MarketDataDomain.API.Services
 {
-    [DisableConcurrentExecution(timeoutInSeconds: 10)]
+    [DisableConcurrentExecution(timeoutInSeconds: 0)]
     [AutomaticRetry(Attempts = 0, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
     public interface IFinnhubService
     {
         Task<List<StockSymbolDto>?> GetStockSymbolsAsync();
         Task<QuoteDto?> GetStockQuoteAsync(string stockSymbols);
-        Task<List<MarketDataDto>> GetMarketDataAsync();
-        Task<MarketStatusDto> GetMarketStatusAsync();
-        Task<List<MarketDataDto>?> RetrieveMarketDataCache();
+        Task<List<MarketDataDto>?> GetMarketDataAsync();
+        Task<MarketStatusDto?> GetMarketStatusAsync();
     }
 }

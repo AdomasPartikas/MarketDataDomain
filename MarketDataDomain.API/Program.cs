@@ -17,6 +17,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddHttpClient<IFinnhubService, FinnhubService>();
+builder.Services.AddSingleton<ICachingService, CachingService>();
 
 builder.Services.AddHangfire(config =>
 {
