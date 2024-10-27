@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketDataDomain.API", "Mar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogicDomain.API", "..\BusinessLogicDomain\BusinessLogicDomain.API\BusinessLogicDomain.API.csproj", "{0C74B8CF-8E50-4967-B1EE-FA7BB8635302}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketDataDomain.Tests", "MarketDataDomain.Tests\MarketDataDomain.Tests.csproj", "{DF9A67F2-FC59-4DCB-A116-92CE3EBB0129}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{0C74B8CF-8E50-4967-B1EE-FA7BB8635302}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C74B8CF-8E50-4967-B1EE-FA7BB8635302}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C74B8CF-8E50-4967-B1EE-FA7BB8635302}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF9A67F2-FC59-4DCB-A116-92CE3EBB0129}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF9A67F2-FC59-4DCB-A116-92CE3EBB0129}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF9A67F2-FC59-4DCB-A116-92CE3EBB0129}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF9A67F2-FC59-4DCB-A116-92CE3EBB0129}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
