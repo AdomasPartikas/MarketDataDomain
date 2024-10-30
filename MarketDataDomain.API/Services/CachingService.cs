@@ -35,7 +35,7 @@ namespace MarketDataDomain.API.Services
         public void SetMarketDataCache(List<MarketDataDto> marketData)
         {
             _cache.Set(CacheConstanct.MarketDataCacheKey, marketData, TimeSpan.FromHours(24));
-            Console.WriteLine("Caching market data for 5 minutes");
+            Console.WriteLine("Caching market data for 24 hours");
         }
 
         public void SetStockSymbolsCache(List<StockSymbolDto> stockSymbols)
