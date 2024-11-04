@@ -13,7 +13,7 @@ namespace MarketDataDomain.API.Services
     {
         private readonly HttpClient _httpClient = httpClient;
         private readonly string _apiToken = configuration["APITokens:Finnhub"] ?? throw new ArgumentNullException("APITokens:Finnhub");
-        private readonly string _finnhubBaseUrl = APIConstants.FinnhubBaseUrl;
+        private readonly string _finnhubBaseUrl = configuration["APIClients:FinnhubBaseUrl"] ?? throw new ArgumentNullException("APIClients:Finnhub");
         private readonly IMapper _mapper = mapper;
         private readonly ICachingService _cachingService = cachingService;
 
