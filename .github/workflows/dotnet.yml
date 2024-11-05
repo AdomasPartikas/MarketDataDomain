@@ -21,7 +21,7 @@ jobs:
     - name: Check paths
       run: ls -R
 
-      
+
     - name: Checkout BusinessLogicDomain
       uses: actions/checkout@v4
       with:
@@ -46,11 +46,11 @@ jobs:
 
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore MarketDataDomain/MarketDataDomain.sln
 
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build MarketDataDomain/MarketDataDomain.sln --no-restore
 
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test MarketDataDomain/MarketDataDomain.sln --no-build --verbosity normal
 
