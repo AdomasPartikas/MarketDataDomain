@@ -12,6 +12,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout MarketDataDomain
+      uses: actions/checkout@v4
+      with:
+        path: MarketDataDomain
+    - name: MarketDataDomainPath
+      run: pwd
+    - name: Check paths
+      run: ls -R
+
+      
     - name: Checkout BusinessLogicDomain
       uses: actions/checkout@v4
       with:
@@ -22,17 +32,19 @@ jobs:
       run: pwd
     - name: dirs
       run: ls -R
-    - name: Checkout MarketDataDomain
-      uses: actions/checkout@v4
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
       
+
     - name: MarketDataDomainPath
       run: pwd
     - name: Check paths
       run: ls -R
+
+
     - name: Restore dependencies
       run: dotnet restore
 
