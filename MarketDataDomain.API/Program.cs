@@ -26,8 +26,20 @@ builder.Services.AddHangfire(config =>
 
 builder.Services.AddHangfireServer();
 
-
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var finnhubService = scope.ServiceProvider.GetRequiredService<IFinnhubService>();
+
+    Console.WriteLine("Initializing cache");
+
+    await finnhubService.GetMarketStatusAsync();
+    await finnhubService.GetStockSymbolsAsync();
+    await finnhubService.GetMarketDataAsync();
+
+    Console.WriteLine("Cache initialized. Other domains can now access the cache.");
+}
 
 app.UseHangfireDashboard();
 

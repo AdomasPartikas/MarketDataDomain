@@ -46,6 +46,8 @@ namespace MarketDataDomain.API.Controller
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetStockSymbols()
         {
+            Console.WriteLine("Stock symbols requested");
+            
             var stockSymbols = await _cachingService.RetrieveStockSymbolsCache();
 
             if (stockSymbols == null || stockSymbols.Count == 0)
@@ -63,6 +65,8 @@ namespace MarketDataDomain.API.Controller
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMarketStatus()
         {
+            Console.WriteLine("Market status requested");
+
             var marketStatus = await _cachingService.RetrieveMarketStatusCache();
 
             if (marketStatus == null)

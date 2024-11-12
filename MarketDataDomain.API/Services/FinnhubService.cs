@@ -70,18 +70,13 @@ namespace MarketDataDomain.API.Services
 
         public async Task<List<MarketDataDto>?> GetMarketDataAsync()
         {
-            Console.WriteLine($"Starting GetMarketDataAsync()");
-
             var marketStatus = await _cachingService.RetrieveMarketStatusCache();
             var marketDataCache = await _cachingService.RetrieveMarketDataCache();
 
             if (marketDataCache != null)
             {
                 if (marketStatus != null && !marketStatus.IsOpen)
-                {
-                    Console.WriteLine($"Stopping GetMarketDataAsync() due to market closed");
                     return null;
-                }
             }
 
             var stockSymbols = await GetStockSymbolsAsync();
@@ -110,18 +105,13 @@ namespace MarketDataDomain.API.Services
             HttpResponseMessage response;
             int retryCount = 0;
 
-            Console.WriteLine($"Starting GetResponseWithRetriesAsync(requestUrl = {requestUrl}, delay = {delay}, retries = {retries})");
-
             do
             {
                 response = await _httpClient.GetAsync(requestUrl);
 
-                //Console.WriteLine($"Sending request to {requestUrl}");
-
                 if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                 {
                     retryCount++;
-                    Console.WriteLine($"Rate limit exceeded (429). Retrying in {delay} seconds...");
                     await Task.Delay(TimeSpan.FromSeconds(delay));
                 }
                 else
