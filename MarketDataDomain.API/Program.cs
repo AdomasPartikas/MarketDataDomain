@@ -2,6 +2,7 @@ using Hangfire;
 using Hangfire.MemoryStorage;
 using MarketDataDomain.API.Profile;
 using MarketDataDomain.API.Services;
+using MarketDataDomain.API.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,11 +33,18 @@ using (var scope = app.Services.CreateScope())
 {
     var finnhubService = scope.ServiceProvider.GetRequiredService<IFinnhubService>();
 
+    ProgressReporter.StartAwaitingNotifier();
+
     Console.WriteLine("Initializing cache");
 
+    Console.WriteLine("Fetching market status from Finnhub API");
     await finnhubService.GetMarketStatusAsync();
+    Console.WriteLine("Fetching available stocks from Finnhub API");
     await finnhubService.GetStockSymbolsAsync();
+    Console.WriteLine("Fetching market data from Finnhub API\nThis might take a while...");
     await finnhubService.GetMarketDataAsync();
+
+    await ProgressReporter.StopAwaitingNotifier();
 
     Console.WriteLine("Cache initialized. Other domains can now access the cache.");
 }
